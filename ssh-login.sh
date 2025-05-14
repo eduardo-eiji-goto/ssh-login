@@ -11,7 +11,7 @@ if [ -d "$1" ]; then
         read -r host
     } < "$1/credentials.txt"
 
-    sshpass -f$1/password.txt ssh $username@$host
+    sshpass -f $1/password.txt ssh $username@$host
 else
     echo "Input should be a Directory"
     exit 1
