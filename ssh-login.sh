@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Checks if there's an input
 if [ -z "$1" ]; then
     echo "No input provided"
     exit 1
