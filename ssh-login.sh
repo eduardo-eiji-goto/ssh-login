@@ -2,36 +2,49 @@
 #
 # Simple script to facilitate connecting to ssh using password
 
-if [ -z "$1" ]; then
-    echo "No argument provided"
-    exit 1
-fi
+set -euo pipefail
 
-if [ $# -gt 1 ]
-then
-    echo "Expected only 1 argument"
-    exit 1
-fi
+main() {
+    if [[ $# -lt 1 ]]; then
+        err "No argument provided"
+        exit 1
+    fi
 
-if [ ! -d "$1" ]; then
-    echo "Argument input should be a directory"
-    exit 1
-fi
+    if [[ $# -gt 1 ]]; then
+        err "Expected only 1 argument"
+        exit 1
+    fi
 
-if [ ! -f "$1/credentials.txt" ]; then
-    echo "Credentials file not found in directory"
-    exit 1
-fi
+    local dir="${1}"
+    local credentials_file="${dir}/credentials.txt"
+    local password_file="${dir}/password.txt"
 
-if [ ! -f "$1/password.txt" ]; then
-    echo "Password file not found in directory"
-    exit 1
-fi
+    if [[ ! -d "${dir}" ]]; then
+        err "Argument input should be a directory"
+        exit 1
+    fi
 
-{
-    read -r username
-    read -r host
-} < "$1/credentials.txt"
+    if [[ ! -f "${credentials_file}" ]]; then
+        err "Credentials file not found in directory"
+        exit 1
+    fi
 
-sshpass -f $1/password.txt ssh $username@$host
+    if [[ ! -f "${password_file}" ]]; then
+        err "Password file not found in directory"
+        exit 1
+    fi
 
+    # Run
+    {
+        read -r username
+        read -r host
+    } < "${credentials_file}"
+
+    sshpass -f "${password_file}" ssh "${username}@${host}"
+}
+
+err() {
+    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+}
+
+main "$@"
